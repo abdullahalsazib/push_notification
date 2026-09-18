@@ -7,8 +7,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:my_app/app/app.dart';
-import 'package:my_app/myTest/details_page.dart';
-import 'package:my_app/myTest/screen/messages_screen.dart';
+import 'package:my_app/view/screen/messages_screen.dart';
+import 'package:my_app/view/screen/users_screen.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -148,14 +148,15 @@ class NotificationService {
 
   void handleRoute(Map<String, dynamic> data) {
     String? type = data['type'];
+    String? id = data["id"];
 
     if (type == 'msg') {
       navigatorKey.currentState?.push(
-        MaterialPageRoute(builder: (context) => MessagesScreen()),
+        MaterialPageRoute(builder: (context) => MessagesScreen(id: id!)),
       );
     } else if (type == 'details_page') {
       navigatorKey.currentState?.push(
-        MaterialPageRoute(builder: (context) => const DetailsPage()),
+        MaterialPageRoute(builder: (context) => const UsersScreen()),
       );
     }
   }

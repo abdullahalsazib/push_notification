@@ -4,14 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_app/app/app.dart';
 import 'package:my_app/core/notifications/notification_services.dart';
+import 'package:my_app/repositories/user_repository.dart';
+import 'package:my_app/services/user_api_services.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  // NotificationService.instance.showNotification(message); 
-  print("Handling a background message: ${message.messageId}");
+  // NotificationService.instance.showNotification(message);
+  // print("Handling a background message: ${message.messageId}");
 }
 
 Future<void> main() async {
@@ -30,5 +32,8 @@ Future<void> main() async {
     overlays: [SystemUiOverlay.top],
   );
 
-  runApp(MyApp());
+  // services add
+  final apiServices = UserApiServices();
+  final repository = UserRepository(apiServices);
+  runApp(MyApp(repository: repository));
 }

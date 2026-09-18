@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:my_app/core/notifications/notification_services.dart';
-import 'package:my_app/myTest/details_page.dart';
+import 'package:my_app/reuseable/connectivity_service.dart';
+import 'package:my_app/view/details_page.dart';
+import 'package:my_app/view/screen/users_screen.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -10,9 +14,13 @@ class NotificationScreen extends StatefulWidget {
 
 class _NotificationScreenState extends State<NotificationScreen> {
   NotificationService notificationService = NotificationService.instance;
+
+  late StreamSubscription<bool> _connectionSubscription;
+
+  bool isOffline = false;
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     notificationService.requestNotificationsPermission();
     notificationService.firebaseInit();
@@ -21,6 +29,22 @@ class _NotificationScreenState extends State<NotificationScreen> {
       print("Device Token");
       print(value);
     }));
+
+    _connectionSubscription = ConnectivityService().connectionstream.listen(((
+      isConnected,
+    ) {
+      if (!mounted) return;
+
+      setState(() {
+        isOffline = !isConnected;
+      });
+    }));
+  }
+
+  @override
+  void dispose() {
+    _connectionSubscription.cancel();
+    super.dispose();
   }
 
   Future<void> _showNotification() async {
@@ -47,7 +71,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
           "Notifications",
@@ -64,21 +88,21 @@ class _NotificationScreenState extends State<NotificationScreen> {
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 10),
           Center(
             child: FilledButton(
               onPressed: _showNotification,
               child: const Text("Instant Notify"),
             ),
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 10),
           Center(
             child: FilledButton(
               onPressed: _scheduleReminder,
               child: const Text("Schedule Notify"),
             ),
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 10),
           Center(
             child: FilledButton(
               style: ButtonStyle(
@@ -93,10 +117,31 @@ class _NotificationScreenState extends State<NotificationScreen> {
               child: const Text("Details ->"),
             ),
           ),
-          const SizedBox(height: 30),
+          Center(
+            child: FilledButton(
+              style: ButtonStyle(
+                mouseCursor: WidgetStateProperty.all(SystemMouseCursors.click),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => UsersScreen()),
+                );
+              },
+              child: const Text("Users ->"),
+            ),
+          ),
+          const SizedBox(height: 10),
           ElevatedButton(
             onPressed: _cancleAllNotification,
-            child: Text("Cancle All Notification"),
+            child: Text(
+              "Cancle All Notification",
+              style: TextStyle(
+                fontSize: 19,
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
