@@ -1,39 +1,36 @@
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:my_app/app/app.dart';
-import 'package:my_app/core/notifications/notification_services.dart';
-import 'package:my_app/repositories/user_repository.dart';
-import 'package:my_app/services/user_api_services.dart';
+import 'package:my_app/core/routes/app_router.dart';
+import 'package:my_app/core/theme/app_theme.dart';
+import 'package:my_app/providers/timer_provider.dart';
+import 'package:my_app/providers/work_provider.dart';
+import 'package:provider/provider.dart';
 
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
-@pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  // NotificationService.instance.showNotification(message);
-  // print("Handling a background message: ${message.messageId}");
-}
-
-Future<void> main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp();
-
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-  // 3. Initialize separate app infrastructure layers
-  await NotificationService.instance.initialize();
-
-  // 4. Update device UI hardware overlay behaviors
-  SystemChrome.setEnabledSystemUIMode(
-    SystemUiMode.manual,
-    overlays: [SystemUiOverlay.top],
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => WorkProvider()),
+        ChangeNotifierProvider(create: (_) => TimerProvider()),
+      ],
+      child: const WorkTrackApp(),
+    ),
   );
+}
 
-  // services add
-  final apiServices = UserApiServices();
-  final repository = UserRepository(apiServices);
-  runApp(MyApp(repository: repository));
+class WorkTrackApp extends StatelessWidget {
+  const WorkTrackApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      title: 'WorkTrack',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
+      routerConfig: AppRouter.router,
+    );
+  }
 }
